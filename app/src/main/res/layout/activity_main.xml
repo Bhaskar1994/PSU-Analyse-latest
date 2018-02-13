@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_height="fill_parent"
+    android:padding="20dip"
+    android:gravity="center"
+    android:layout_width="fill_parent">
+
+    <LinearLayout
+        android:id="@+id/startedRecording"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/startedRecordingLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Started recording at: "
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
+            android:id="@+id/startedRecordingTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+    <TextView android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Enter desired filename:" android:layout_marginBottom="5dip"/>
+
+    <LinearLayout android:layout_height="wrap_content"
+        android:weightSum="6"
+        android:layout_width="280dip">
+
+        <EditText android:id="@+id/editText"
+            android:text="recording.wav"
+            android:layout_height="wrap_content"
+            android:layout_width="0dip"
+            android:layout_weight="5"/>
+
+        <ImageButton android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dip"
+            android:id="@+id/newTimestamp" android:src="@drawable/clock"/>
+
+    </LinearLayout>
+
+    <TextView android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose sampling rate:"
+        android:layout_marginTop="10dip" android:layout_marginBottom="5dip"/>
+
+    <Spinner android:layout_height="wrap_content"
+        android:layout_width="280dip"
+        android:id="@+id/spinner"
+        android:entries="@array/sampleRates"/>
+
+    <LinearLayout android:layout_height="wrap_content"
+        android:id="@+id/buttonLayout"
+        android:orientation="horizontal"
+        android:paddingTop="15dip"
+        android:layout_width="280dip"
+        android:gravity="center">
+
+        <ProgressBar android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/saving"
+            android:layout_marginRight="20dip"/>
+
+        <Button android:layout_height="wrap_content"
+            android:id="@+id/actionButton"
+            android:text="Start recording"
+            android:layout_width="200dip"
+            android:textSize="8pt"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dip"
+        android:text="Recordings are saved to the SD card."
+        android:textStyle="italic"
+        android:typeface="serif" >
+    </TextView>
+
+</LinearLayout>
