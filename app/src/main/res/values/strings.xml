@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Aero-Analyse</string>
     <string name="notification_title">recording</string>
-    <string name="notifification_content">Hertz is recording</string>
+    <string name="notifification_content">recording is on</string>
 </resources>

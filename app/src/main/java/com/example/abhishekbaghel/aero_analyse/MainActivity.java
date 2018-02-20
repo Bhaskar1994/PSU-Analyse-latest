@@ -173,20 +173,7 @@ public class MainActivity extends AppCompatActivity {
      */
    // public native String stringFromJNI();*/
 
-   /*
- * Copyright (C) 2009 Rhodri Karim (rk395)
- * Copyright (C) 2012 Daniel Thomas (drt24)
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
+
 
         import java.io.ByteArrayOutputStream;
         import java.io.File;
@@ -197,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
         import java.text.SimpleDateFormat;
         import java.util.Date;
 
+        import android.Manifest;
         import android.app.Activity;
         import android.app.AlertDialog;
         import android.app.Notification;
@@ -205,13 +193,22 @@ public class MainActivity extends AppCompatActivity {
         import android.content.Context;
         import android.content.DialogInterface;
         import android.content.Intent;
+        import android.content.pm.PackageManager;
+        import android.location.Location;
+        import android.location.LocationListener;
+        import android.location.LocationManager;
         import android.media.AudioFormat;
         import android.media.AudioRecord;
         import android.media.MediaRecorder;
         import android.net.Uri;
+        import android.os.Build;
         import android.os.Bundle;
         import android.os.Environment;
+        import android.os.Looper;
         import android.os.StatFs;
+        import android.provider.Settings;
+        import android.support.annotation.NonNull;
+        import android.support.v4.app.ActivityCompat;
         import android.util.Log;
         import android.view.View;
         import android.view.View.OnClickListener;
@@ -226,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
  * An activity that allows the user to record full-quality audio at a variety of sample rates, and
  * save to a WAV file
  *
- * @author Rhodri Karim
  *
  */
 public class MainActivity extends Activity {
@@ -250,6 +246,13 @@ public class MainActivity extends Activity {
 
     private boolean isListening;
 
+    //gps variables
+    private Button b;
+    private TextView t;
+    private LocationManager locationManager;
+    private LocationListener listener;
+    private Looper looper;
+
     /**
      * The sample rate at which we'll record, and save, the WAV file.
      */
@@ -269,6 +272,13 @@ public class MainActivity extends Activity {
         spinner = (Spinner) findViewById(R.id.spinner);
         startedRecording = findViewById(R.id.startedRecording);
         startedRecordingTime = (TextView)findViewById(R.id.startedRecordingTime);
+
+        //GPS
+        t = (TextView) findViewById(R.id.textView);
+        b = (Button) findViewById(R.id.button);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        //------------------
+
 
         // get a generic dialog ready for alerts
         dialog = new AlertDialog.Builder(this).create();
@@ -309,6 +319,39 @@ public class MainActivity extends Activity {
             }
 
         });
+
+
+        //GPS---------
+        listener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                //getTime-Return the UTC time of this fix, in milliseconds since January 1, 1970.
+                //getAccuracy- Get the estimated horizontal accuracy of this location, radial, in meters.
+                t.append("\n " + location.getLongitude() + "\n" + location.getLatitude() + "\n" + location.getAccuracy() + "\n" + location.getTime());
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+                Intent i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(i);
+            }
+        };
+
+        configure_button();
+        //------------------------------
+
+
     }
 
     /**
@@ -441,7 +484,6 @@ public class MainActivity extends Activity {
     /**
      * Monitors the available SD card space while recording.
      *
-     * @author Rhodri Karim
      *
      */
     private class SpaceCheck implements Runnable {
@@ -475,7 +517,7 @@ public class MainActivity extends Activity {
     /**
      * Capture raw audio data from the hardware and saves it to a buffer in the enclosing class.
      *
-     * @author Rhodri Karim
+     *
      *
      */
     private class Capture implements Runnable {
@@ -608,10 +650,10 @@ public class MainActivity extends Activity {
             ramFile.write(header);
             ramFile.close();
         } catch (FileNotFoundException e) {
-            Log.e("Hertz", "Tried to append header to invalid file: " + e.getLocalizedMessage());
+            Log.e("Aero", "Tried to append header to invalid file: " + e.getLocalizedMessage());
             return;
         } catch (IOException e) {
-            Log.e("Hertz", "IO Error during header append: " + e.getLocalizedMessage());
+            Log.e("Aero", "IO Error during header append: " + e.getLocalizedMessage());
             return;
         }
 
@@ -644,7 +686,6 @@ public class MainActivity extends Activity {
             out.write(sampleRateBytes); // sampling rate
             out.write(bytesPerSecond); // bytes per second
             out.write(new byte[] {0x02, 0x00, 0x10, 0x00}); // 2 bytes per sample
-
             out.write(new byte[] {'d', 'a', 't', 'a'});
             out.write(samplesLength);
         } catch (IOException e) {
@@ -666,5 +707,37 @@ public class MainActivity extends Activity {
             bytes[i] = (byte) ((in >>> i * 8) & 0xFF);
         }
         return bytes;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 10:
+                configure_button();
+                break;
+            default:
+                break;
+        }
+    }
+
+    void configure_button() {
+        // first check for permissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET,Manifest.permission.RECORD_AUDIO,Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                        , 10);
+            }
+            return;
+        }
+        // this code won't execute IF permissions are not allowed, because in the line above there is return statement.
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //noinspection MissingPermission
+
+                locationManager.requestSingleUpdate("gps", listener, looper);
+                //locationManager.requestLocationUpdates("gps", 5000, 0, listener);
+            }
+        });
     }
 }
