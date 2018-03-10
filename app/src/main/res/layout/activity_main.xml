@@ -104,6 +104,13 @@
         android:id="@+id/button"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request Weather"
+        android:id="@+id/weather_button"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
 
 </LinearLayout>

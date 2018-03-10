@@ -219,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
         import android.widget.Spinner;
         import android.widget.TextView;
 
+
+
 /**
  * An activity that allows the user to record full-quality audio at a variety of sample rates, and
  * save to a WAV file
@@ -248,10 +250,15 @@ public class MainActivity extends Activity {
 
     //gps variables
     private Button b;
+    private Button w;
     private TextView t;
     private LocationManager locationManager;
     private LocationListener listener;
     private Looper looper;
+
+
+    String longitude;
+    String latitude;
 
     /**
      * The sample rate at which we'll record, and save, the WAV file.
@@ -276,7 +283,9 @@ public class MainActivity extends Activity {
         //GPS
         t = (TextView) findViewById(R.id.textView);
         b = (Button) findViewById(R.id.button);
+        w = (Button) findViewById(R.id.weather_button);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
         //------------------
 
 
@@ -328,6 +337,8 @@ public class MainActivity extends Activity {
                 //getTime-Return the UTC time of this fix, in milliseconds since January 1, 1970.
                 //getAccuracy- Get the estimated horizontal accuracy of this location, radial, in meters.
                 t.append("\n " + location.getLongitude() + "\n" + location.getLatitude() + "\n" + location.getAccuracy() + "\n" + location.getTime());
+                 latitude = Double.toString(location.getLatitude());
+                 longitude =Double.toString(location.getLongitude());
             }
 
             @Override
@@ -350,7 +361,21 @@ public class MainActivity extends Activity {
 
         configure_button();
         //------------------------------
+       //Weather button------------------------------------
+        w.setOnClickListener(new OnClickListener() {
 
+            @Override
+            public void onClick(View v) {
+
+                // Move to weather activity
+                Intent intent = new Intent(MainActivity.this,WeatherActivity.class);
+                intent.putExtra("lat", latitude);
+                intent.putExtra("long",longitude);
+                startActivity(intent);
+
+            }
+
+        });
 
     }
 
@@ -733,11 +758,13 @@ public class MainActivity extends Activity {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //noinspection MissingPermission
 
                 locationManager.requestSingleUpdate("gps", listener, looper);
                 //locationManager.requestLocationUpdates("gps", 5000, 0, listener);
+
             }
         });
     }
+
+
 }
