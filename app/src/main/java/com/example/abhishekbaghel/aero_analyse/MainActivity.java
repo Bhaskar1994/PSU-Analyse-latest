@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+        import java.io.BufferedOutputStream;
         import java.io.ByteArrayOutputStream;
         import java.io.File;
         import java.io.FileNotFoundException;
@@ -219,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         import android.widget.Spinner;
         import android.widget.TextView;
 
+        import static android.content.ContentValues.TAG;
 
 
 /**
@@ -237,6 +239,7 @@ public class MainActivity extends Activity {
     private ImageButton newTimestamp;
     private EditText editText;
     private String filename;
+    private String rawFileName;
     private ProgressBar saving;
     private Spinner spinner;
     private View startedRecording;
@@ -245,6 +248,7 @@ public class MainActivity extends Activity {
     private AlertDialog dialog;
 
     private File outFile;
+    private File rawFile;
 
     private boolean isListening;
 
@@ -265,6 +269,11 @@ public class MainActivity extends Activity {
      */
     public int sampleRate = 8000;
     private NotificationManager notificationManager;
+
+
+
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -337,8 +346,8 @@ public class MainActivity extends Activity {
                 //getTime-Return the UTC time of this fix, in milliseconds since January 1, 1970.
                 //getAccuracy- Get the estimated horizontal accuracy of this location, radial, in meters.
                 t.append("\n " + location.getLongitude() + "\n" + location.getLatitude() + "\n" + location.getAccuracy() + "\n" + location.getTime());
-                 latitude = Double.toString(location.getLatitude());
-                 longitude =Double.toString(location.getLongitude());
+                latitude = Double.toString(location.getLatitude());
+                longitude =Double.toString(location.getLongitude());
             }
 
             @Override
@@ -448,6 +457,15 @@ public class MainActivity extends Activity {
         if (!filename.endsWith(".wav")) {
             filename += ".wav";
         }
+        rawFileName = editText.getText().toString();
+        if (rawFileName.equals("") || rawFileName == null) {
+            showDialog("Enter a file name", "Please give your file a name. It's the least it deserves.");
+            return;
+        }
+        if (!rawFileName.endsWith(".raw")) {
+            rawFileName += ".raw";
+        }
+
 
         // ask if file should be overwritten
         File userFile = new File(Environment.getExternalStorageDirectory() + "/" + filename);
@@ -589,13 +607,17 @@ public class MainActivity extends Activity {
 
             String sdDirectory = Environment.getExternalStorageDirectory().toString();
             outFile = new File(sdDirectory + "/" + filename);
+            rawFile = new File(sdDirectory+"/"+rawFileName);
             if (outFile.exists())
                 outFile.delete();
 
             FileOutputStream outStream = null;
+            FileOutputStream rawOutputStream = null;
             try {
                 outFile.createNewFile();
+                rawFile.createNewFile();
                 outStream = new FileOutputStream(outFile);
+                rawOutputStream = new FileOutputStream(rawFile);
                 outStream.write(createHeader(0));// Write a dummy header for a file of length 0 to get updated later
             } catch (Exception e) {
                 runOnUiThread(new Runnable() {
@@ -616,6 +638,7 @@ public class MainActivity extends Activity {
                 while (isListening) {
                     recordInstance.read(tempBuffer, 0, bufferSize);
                     outStream.write(tempBuffer);
+                    rawOutputStream.write(tempBuffer);
                 }
             } catch (final IOException e) {
                 runOnUiThread(new Runnable() {
@@ -744,6 +767,7 @@ public class MainActivity extends Activity {
                 break;
         }
     }
+
 
     void configure_button() {
         // first check for permissions

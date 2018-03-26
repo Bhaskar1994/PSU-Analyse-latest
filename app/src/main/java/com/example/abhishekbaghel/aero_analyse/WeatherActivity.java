@@ -36,8 +36,8 @@ public class WeatherActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         Intent intent = getIntent();
-        latitude = intent.getStringExtra("lat");
-        longitude = intent.getStringExtra("long");
+        //latitude = intent.getStringExtra("lat");
+        //longitude = intent.getStringExtra("long");
         setup();
 
 
@@ -58,14 +58,17 @@ public class WeatherActivity extends Activity {
     }
 
     
-    private void updateUI(String pTemp, String pConditions,String pPressure, String pWindSpeed,String pWindDirection, String pHumidity) {
+    private void updateUI(String pPlace, String pTemp, String pConditions,String pPressure, String pWindSpeed,String pWindDirection, String pHumidity) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Temperature: ").append(pTemp).append("degF\n")
+
+        sb.append("Place: ").append(pPlace).append("\n")
+                .append("Temperature: ").append(pTemp).append("degF\n")
                 .append("Weather Condition: ").append(pConditions).append("\n")
                 .append("Pressure: ").append(pPressure).append("in\n")
                 .append("Wind Speed: ").append(pWindSpeed).append("mph\n")
                 .append("Wind Direction: ").append(pWindDirection).append("deg(0 deg = North)\n")
                 .append("Relative Humidity: ").append(pHumidity).append("%\n");
+
 
         weatherDetailsTxt.setText(sb.toString());
     }
@@ -83,8 +86,9 @@ public class WeatherActivity extends Activity {
             String windDirection = current.getString("Windd");
             String humidity = current.getString("Relh");
             String weather = current.getString("Weather");
+            String place = current.getString("name");
 
-            updateUI(temp, weather, pressure, windSpeed, windDirection, humidity);
+            updateUI(place,temp, weather, pressure, windSpeed, windDirection, humidity);
             //notifyUser(temp, weather);
         } catch(JSONException e) {
             e.printStackTrace();
