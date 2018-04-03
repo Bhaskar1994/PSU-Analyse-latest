@@ -36,8 +36,8 @@ public class WeatherActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         Intent intent = getIntent();
-        //latitude = intent.getStringExtra("lat");
-        //longitude = intent.getStringExtra("long");
+        latitude = intent.getStringExtra("lat");
+        longitude = intent.getStringExtra("long");
         setup();
 
 
